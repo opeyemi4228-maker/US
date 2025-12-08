@@ -9,7 +9,9 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@clerk/nextjs": "^6.31.7",
+    "@clerk/nextjs": "^6.31.10",
+    "axios": "^1.11.0",
+    "cloudinary": "^2.7.0",
     "inngest": "^3.40.2",
     "lucide-react": "^0.542.0",
     "mongoose": "^8.18.0",
