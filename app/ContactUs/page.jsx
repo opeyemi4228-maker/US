@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { Mail, Phone, MapPin, Clock, ArrowRight, Check } from "lucide-react";
-import PageHeader from "@/components/PageHeader";
+import PageHeader from "@/components/PageHero";
 import { assets } from "@/assets/assets";
 
 const initialForm = {
