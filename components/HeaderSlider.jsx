@@ -1,349 +1,269 @@
-'use client';
-import React, { useState, useEffect, useRef } from "react";
-import { assets } from "@/assets/assets";
+"use client";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import Image from "next/image";
+import Link from "next/link";
+import { assets } from "@/assets/assets";
 
-// Animations
-const sliderAnimation = `
-@keyframes slideZoomOut {
-  0% { opacity: 1; transform: scale(1);}
-  100% { opacity: 0; transform: scale(1.08);}
-}
-@keyframes slideZoomIn {
-  0% { opacity: 0; transform: scale(0.96);}
-  100% { opacity: 1; transform: scale(1);}
-}
-@keyframes logoDropZoom {
-  0% {
-    opacity: 0;
-    transform: translate(-50%, -120px) scale(0.92);
-  }
-  60% {
-    opacity: 1;
-    transform: translate(-50%, 20px) scale(1.08);
-  }
-  80% {
-    opacity: 1;
-    transform: translate(-50%, 0px) scale(0.98);
-  }
-  100% {
-    opacity: 1;
-    transform: translate(-50%, 0px) scale(1);
-  }
-}
-@keyframes logoUpZoom {
-  0% {
-    opacity: 1;
-    transform: translate(-50%, 0px) scale(1);
-  }
-  100% {
-    opacity: 0;
-    transform: translate(-50%, -120px) scale(0.92);
-  }
-}
-`;
-
-// Default sliderData for >=500px
-const defaultSliderData = [
-  { id: 1, image: assets.hero, bgColor: "#eaeaea" },
-  { id: 2, image: assets.hero00, bgColor: "#f7e7d9" },
-  { id: 3, image: assets.hero3, bgColor: "#e3eafc" },
+/* ── Slide data ────────────────────────────────────────────── */
+const slides = [
+  {
+    id: 1,
+    image: assets.hero,
+    mobileImage: assets.header_headphone_image,
+    eyebrow: "Spring · Summer 2026",
+    headline: "Treasure is\non the horizon",
+    body: "Some garments are made to be worn. Ours are made to be remembered — by the weight of the fabric and the way they hold your shape long after you've left the room.",
+    cta: { label: "Shop the Collection", href: "/all-products" },
+  },
+  {
+    id: 2,
+    image: assets.hero00,
+    mobileImage: assets.blue1,
+    eyebrow: "Womenswear",
+    headline: "Refined\nRadiance",
+    body: "Soft structure meets sharp tailoring. The new women's collection arrives dressed in restraint and intention.",
+    cta: { label: "Shop Women", href: "/ShopWomen" },
+  },
+  {
+    id: 3,
+    image: assets.hero3,
+    mobileImage: assets.girl_with_headphone_image,
+    eyebrow: "The Heritage Edit",
+    headline: "Modern\nỌmọlúàbí",
+    body: "Tradition, retold. A capsule built around craft, character, and quiet command — for those who choose presence over noise.",
+    cta: { label: "Discover the Edit", href: "/collections/heritage" },
+  },
 ];
 
-const mobileSliderData = [
-  { id: 1, image: assets.header_headphone_image, bgColor: "#eaeaea" },
-  { id: 2, image: assets.blue1, bgColor: "#f7e7d9" },
-  { id: 3, image: assets.girl_with_headphone_image, bgColor: "#e3eafc" },
-];
+const ROTATION_MS = 6500;
 
 const HeaderSlider = React.memo(() => {
-  const [currentSlide, setCurrentSlide] = useState(0);
-  const [prevSlide, setPrevSlide] = useState(null);
-  const [isAnimating, setIsAnimating] = useState(false);
-  const [logoVisible, setLogoVisible] = useState(true);
-  const [windowWidth, setWindowWidth] = useState(
-    typeof window !== "undefined" ? window.innerWidth : 1920
-  );
-  const sliderRef = useRef();
-  const intervalRef = useRef();
+  const [index, setIndex] = useState(0);
+  const [prev, setPrev] = useState(null);
+  const [animating, setAnimating] = useState(false);
+  const [paused, setPaused] = useState(false);
+  const [reducedMotion, setReducedMotion] = useState(false);
+  const touchX = useRef(null);
 
-  // Listen for window resize
   useEffect(() => {
-    const handleResize = () => setWindowWidth(window.innerWidth);
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const sync = () => setReducedMotion(mq.matches);
+    sync(); mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
   }, []);
 
-  // Use mobileSliderData for <500px, else defaultSliderData
-  const sliderData = windowWidth < 500 ? mobileSliderData : defaultSliderData;
+  const goTo = useCallback((i) => {
+    const next = ((i % slides.length) + slides.length) % slides.length;
+    setPrev(index);
+    setIndex(next);
+    setAnimating(true);
+    setTimeout(() => { setAnimating(false); setPrev(null); }, 900);
+  }, [index]);
 
-  // Auto slide
+  const next = useCallback(() => goTo(index + 1), [index, goTo]);
+  const prv  = useCallback(() => goTo(index - 1), [index, goTo]);
+
   useEffect(() => {
-    intervalRef.current = setInterval(() => {
-      setPrevSlide(currentSlide);
-      setCurrentSlide((prev) => (prev + 1) % sliderData.length);
-      setIsAnimating(true);
-      setTimeout(() => setIsAnimating(false), 700);
-    }, 4000);
-    return () => clearInterval(intervalRef.current);
-    // eslint-disable-next-line
-  }, [currentSlide, sliderData.length]);
+    if (paused || reducedMotion) return;
+    const t = setInterval(next, ROTATION_MS);
+    return () => clearInterval(t);
+  }, [paused, reducedMotion, next]);
 
-  // Logo drop on scroll in/out
-  useEffect(() => {
-    const handleScroll = () => {
-      if (!sliderRef.current) return;
-      const rect = sliderRef.current.getBoundingClientRect();
-      if (rect.top < window.innerHeight * 0.6 && rect.bottom > window.innerHeight * 0.2) {
-        setLogoVisible(true);
-      } else {
-        setLogoVisible(false);
-      }
-    };
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    handleScroll();
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  const handleSlideChange = (index) => {
-    if (index === currentSlide) return;
-    setPrevSlide(currentSlide);
-    setCurrentSlide(index);
-    setIsAnimating(true);
-    setTimeout(() => setIsAnimating(false), 700);
+  const onTouchStart = (e) => { touchX.current = e.touches[0].clientX; };
+  const onTouchEnd = (e) => {
+    if (touchX.current == null) return;
+    const dx = e.changedTouches[0].clientX - touchX.current;
+    if (Math.abs(dx) > 48) dx > 0 ? prv() : next();
+    touchX.current = null;
   };
 
-  // Responsive height: full screen on large, auto on md and below, iPad Pro max-height
-  const sliderHeight = "h-auto lg:h-screen";
-  const ipadProStyle = `
-    @media (min-width: 1024px) and (max-width: 1366px) and (orientation: landscape) {
-      .header-slider-section { height: 600px !important; min-height: 0 !important; }
-    }
-    @media (min-width: 820px) and (max-width: 1024px) and (orientation: portrait) {
-      .header-slider-section { height: 500px !important; min-height: 0 !important; }
-    }
-  `;
-
-  // Only reduce height for devices below 500px
-  const customSectionStyle =
-    windowWidth < 500
-      ? {
-          height: `${window.innerHeight / 2}px`,
-          minHeight: 0,
-        }
-      : {};
+  const current = slides[index];
 
   return (
-    <>
-      <style>{sliderAnimation}</style>
-      <style>{ipadProStyle}</style>
-      <div
-        ref={sliderRef}
-        className={`overflow-hidden relative w-full ${sliderHeight} header-slider-section`}
-        style={{ zIndex: 10, position: "relative", ...customSectionStyle }}
-      >
-        <div className="relative w-full h-full min-h-[320px]">
-          {/* Previous Slide (zoom out effect) */}
-          {isAnimating && prevSlide !== null && (
-            <div
-              className="absolute inset-0 w-full h-full z-0"
-              style={{
-                background: sliderData[prevSlide].bgColor,
-                animation: "slideZoomOut 0.7s linear forwards",
-              }}
-            >
-              <Image
-                src={sliderData[prevSlide].image}
-                alt={`Slide ${prevSlide + 1}`}
-                fill
-                sizes="100vw"
-                className="object-cover w-full h-full"
-                style={{
-                  objectPosition: "center 70%",
-                }}
-                priority={false}
-                loading="eager"
-              />
-            </div>
-          )}
-          {/* Current Slide (zoom in effect) */}
+    <section
+      aria-roledescription="carousel"
+      aria-label="Featured collections"
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+      onTouchStart={onTouchStart}
+      onTouchEnd={onTouchEnd}
+      className="relative w-full h-screen min-h-[600px] overflow-hidden bg-neutral-950"
+      style={{ marginTop: 0 }}
+    >
+      {/* ── Slide images ─────────────────────────────────── */}
+      {slides.map((slide, i) => {
+        const isActive = i === index;
+        const isPrev   = i === prev;
+        return (
           <div
-            className="absolute inset-0 w-full h-full z-10"
+            key={slide.id}
+            aria-hidden={!isActive}
+            className="absolute inset-0"
             style={{
-              background: sliderData[currentSlide].bgColor,
-              animation: isAnimating ? "slideZoomIn 0.7s linear" : "none",
+              zIndex: isActive ? 2 : isPrev ? 1 : 0,
+              opacity: isActive ? 1 : 0,
+              transition: animating && isActive ? "opacity 0.9s ease" : "none",
             }}
           >
-            <Image
-              src={sliderData[currentSlide].image}
-              alt={`Slide ${currentSlide + 1}`}
-              fill
-              sizes="100vw"
-              className="object-cover w-full h-full"
-              priority
-              style={{
-                objectPosition: "center 70%",
-              }}
-              loading="eager"
-            />
-
-            {/* Centered drop logo with drop/up animation */}
-            <div className="absolute inset-0 flex flex-col items-center justify-start z-20 pointer-events-none">
-              <div
-                className="flex flex-col items-center w-full"
+            {/* Desktop image */}
+            <div className="hidden sm:block absolute inset-0">
+              <Image
+                src={slide.image}
+                alt=""
+                fill
+                priority={i === 0}
+                sizes="100vw"
+                className="object-cover object-center"
                 style={{
-                  marginTop: "10px",
-                  marginBottom: "10px",
-                  left: "50%",
-                  position: "absolute",
-                  // Responsive top for dropped logo
-                  top: windowWidth < 500 ? "10px" : "-80px",
-                  transform: "translateX(-50%)",
-                  width: "100%",
-                  pointerEvents: "none",
-                  animation: logoVisible
-                    ? "logoDropZoom 1.2s cubic-bezier(.39,.575,.565,1) both"
-                    : "logoUpZoom 0.7s cubic-bezier(.39,.575,.565,1) both",
-                  transition: "animation 0.2s",
+                  transform: isActive && !reducedMotion ? "scale(1.04)" : "scale(1)",
+                  transition: "transform 8s ease-out",
                 }}
-              >
-                <Image
-                  src={assets.heropng}
-                  alt="logo"
-                  width={2000}
-                  height={800}
-                  className="mx-auto sm:mt-4"
-                  priority
-                  style={{
-                    background: "transparent",
-                    maxWidth: "90vw",
-                    height: "auto",
-                  }}
-                />
-              </div>
+              />
             </div>
+            {/* Mobile image */}
+            <div className="sm:hidden absolute inset-0">
+              <Image
+                src={slide.mobileImage || slide.image}
+                alt=""
+                fill
+                priority={i === 0}
+                sizes="100vw"
+                className="object-cover object-center"
+              />
+            </div>
+          </div>
+        );
+      })}
 
-            {/* Tagline and button at the bottom */}
-            <div
-              className="absolute left-0 right-0 flex flex-col items-center z-30 pointer-events-none"
-              style={{
-                bottom: 24,
-                width: "100%",
-              }}
+      {/* ── Scrim — bottom-heavy, matches reference image ── */}
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 z-10"
+        style={{
+          background: "linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.30) 45%, rgba(0,0,0,0.08) 100%)",
+        }}
+      />
+      {/* Subtle left vignette */}
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 z-10 hidden md:block"
+        style={{
+          background: "linear-gradient(to right, rgba(0,0,0,0.30) 0%, transparent 55%)",
+        }}
+      />
+
+      {/* ── Content — bottom-left (desktop), bottom-centre (mobile) ── */}
+      <div className="absolute inset-0 z-20 flex items-end">
+        <div className="w-full max-w-[1440px] mx-auto px-6 md:px-10 lg:px-16 pb-16 md:pb-20">
+          <div
+            key={index}
+            className="max-w-2xl"
+            style={{
+              animation: !reducedMotion ? "slideUp 0.85s cubic-bezier(0.22, 1, 0.36, 1) both" : "none",
+            }}
+          >
+            {/* Eyebrow */}
+            <p className="flex items-center gap-3 text-[11px] font-semibold tracking-[0.35em] uppercase text-white/65 mb-5">
+              <span aria-hidden className="inline-block w-8 h-px bg-white/65" />
+              {current.eyebrow}
+            </p>
+
+            {/* Headline — italic serif like reference */}
+            <h1
+              className="font-serif italic font-normal text-white leading-[1.08] tracking-tight mb-6"
+              style={{ fontSize: "clamp(2.4rem, 5.5vw, 4.2rem)", whiteSpace: "pre-line" }}
             >
-              {/* Always show slider-bottom-content, including at 500px */}
-              <div
-                className="slider-bottom-content flex flex-col items-center gap-4 slider-logo-spacing"
-                style={{
-                  pointerEvents: "auto",
-                  textAlign: "center",
-                  color: "white",
-                  marginBottom: "24px",
-                }}
-              >
-                <h2
-                  className="text-sm sm:text-xl md:text-xl font-medium max-w-xl px-6"
-                >
-                  Pure Fashion Redefined. Experience Elegance with Every Stitch.
-                </h2>
-                <button
-                  className="bg-white text-black px-8 py-3 rounded-full text-sm sm:text-base md:text-lg font-semibold hover:bg-black hover:text-white transition"
-                  style={{
-                    boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-                  }}
-                  onClick={() => {
-                    const contactSection = document.getElementById("contact");
-                    if (contactSection) {
-                      contactSection.scrollIntoView({ behavior: "smooth" });
-                    }
-                  }}
-                >
-                  Shop Our New Collections
-                </button>
-              </div>
-              {/* Responsive adjustments for small screens */}
-              <style>{`
-                @media (max-width: 480px) {
-                  .slider-bottom-content {
-                    gap: 10px !important;
-                    margin-bottom: 10px !important;
-                  }
-                  .slider-bottom-content h2 {
-                    font-size: 0.95rem !important;
-                  }
-                  .slider-bottom-content button {
-                    font-size: 0.85rem !important;
-                    padding: 6px 16px !important;
-                  }
-                }
-                @media (max-width: 480px) {
-                  .slider-logo-spacing {
-                    margin-bottom: 18px !important;
-                  }
-                }
-              `}</style>
-            </div>
+              {current.headline}
+            </h1>
 
-            {/* Slider dots */}
-            <div className="flex items-center justify-center gap-3 mt-8 absolute bottom-6 left-0 right-0 z-40">
-              {sliderData.map((_, index) => (
-                <button
-                  key={index}
-                  onClick={() => handleSlideChange(index)}
-                  className={`h-3 w-3 rounded-full border-2 border-black transition-all duration-300 ${
-                    currentSlide === index ? "bg-grey-500 scale-110 shadow-lg" : "bg-gray-400/30"
-                  }`}
-                  aria-label={`Go to slide ${index + 1}`}
-                  tabIndex={0}
-                ></button>
-              ))}
-            </div>
+            {/* Body — matches reference paragraph style */}
+            <p className="text-[14px] md:text-[15px] text-white/75 leading-[1.75] max-w-md mb-8">
+              {current.body}
+            </p>
+
+            {/* CTA — underline link style matching reference */}
+            <Link
+              href={current.cta.href}
+              className="inline-flex items-center gap-0 text-[11px] font-bold tracking-[0.28em] uppercase text-white border-b border-white pb-0.5 hover:text-orange-300 hover:border-orange-300 transition-colors duration-300 group focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+            >
+              {current.cta.label}
+            </Link>
           </div>
         </div>
       </div>
-      {/* Spacer to prevent overlap with next section */}
+
+      {/* ── Bottom bar: counter + dots + arrows ────────────── */}
+      <div className="absolute bottom-6 left-0 right-0 z-30 max-w-[1440px] mx-auto px-6 md:px-10 lg:px-16 flex items-center justify-between">
+
+        {/* Slide counter */}
+        <span
+          className="font-serif text-white/70 text-sm tracking-widest"
+          aria-live="polite"
+          aria-atomic="true"
+        >
+          <span className="text-white">{String(index + 1).padStart(2, "0")}</span>
+          <span className="text-white/35 mx-2">/</span>
+          <span className="text-white/40">{String(slides.length).padStart(2, "0")}</span>
+        </span>
+
+        {/* Dot indicators */}
+        <div role="tablist" aria-label="Slides" className="flex items-center gap-2.5">
+          {slides.map((_, i) => (
+            <button
+              key={i}
+              role="tab"
+              aria-selected={index === i}
+              aria-label={`Go to slide ${i + 1}`}
+              onClick={() => goTo(i)}
+              className={`block h-px rounded-full transition-all duration-500 focus:outline-none ${
+                index === i ? "w-10 bg-white h-[2px]" : "w-5 bg-white/35 hover:bg-white/60"
+              }`}
+            />
+          ))}
+        </div>
+
+        {/* Prev / Next */}
+        <div className="flex items-center gap-2">
+          <button
+            onClick={prv}
+            aria-label="Previous slide"
+            className="w-10 h-10 flex items-center justify-center rounded-full border border-white/20 text-white hover:bg-white hover:text-neutral-900 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+          >
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M9 2L4 7l5 5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </button>
+          <button
+            onClick={next}
+            aria-label="Next slide"
+            className="w-10 h-10 flex items-center justify-center rounded-full border border-white/20 text-white hover:bg-white hover:text-neutral-900 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+          >
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M5 2l5 5-5 5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      {/* Scroll hint */}
       <div
         aria-hidden="true"
-        style={{
-          height: "0",
-          marginBottom: "0",
-        }}
-        className="
-          block
-          lg:h-0
-          xl:h-0
-          2xl:h-0
-          md:h-0
-          sm:h-0
-        "
-      ></div>
-      {/* Responsive spacer for HeaderSlider height */}
+        className="hidden md:flex absolute bottom-8 left-1/2 -translate-x-1/2 z-30 flex-col items-center gap-2 text-white/40"
+      >
+        <span className="text-[9px] uppercase tracking-[0.3em]">Scroll</span>
+        <span className="block w-px h-8 bg-gradient-to-b from-white/40 to-transparent" />
+      </div>
+
+      {/* Keyframe */}
       <style>{`
-        .header-slider-spacer {
-          display: block;
-          width: 100%;
-        }
-        @media (min-width: 1536px) {
-          .header-slider-spacer { height: 100vh; }
-        }
-        @media (min-width: 1024px) and (max-width: 1535px) {
-          .header-slider-spacer { height: 100vh; }
-        }
-        @media (min-width: 820px) and (max-width: 1366px) and (orientation: landscape) {
-          .header-slider-spacer { height: 600px; }
-        }
-        @media (min-width: 820px) and (max-width: 1024px) and (orientation: portrait) {
-          .header-slider-spacer { height: 500px; }
-        }
-        @media (max-width: 1023px) {
-          .header-slider-spacer { height: auto; min-height: 320px; }
+        @keyframes slideUp {
+          from { opacity: 0; transform: translateY(28px); }
+          to   { opacity: 1; transform: translateY(0); }
         }
       `}</style>
-      <div className="header-slider-spacer" />
-    </>
+    </section>
   );
 });
 
-
-
+HeaderSlider.displayName = "HeaderSlider";
 export default HeaderSlider;

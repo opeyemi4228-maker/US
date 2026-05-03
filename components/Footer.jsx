@@ -1,147 +1,303 @@
-import React from 'react';
-import Link from 'next/link';
-import { Facebook, Instagram, Twitter, Youtube, Mail, Phone, MapPin } from 'lucide-react';
+"use client";
+import React, { useState } from "react";
+import Link from "next/link";
+import {
+  Facebook,
+  Instagram,
+  Twitter,
+  Youtube,
+  Mail,
+  Phone,
+  MapPin,
+  ArrowRight,
+  Check,
+} from "lucide-react";
+
+const linkColumns = [
+  {
+    heading: "Customer Care",
+    links: [
+      { label: "Contact Us", href: "/ContactUs" },
+      { label: "Size Guide", href: "/SizeGuide" },
+      { label: "Care Instructions", href: "/care-instructions" },
+      { label: "Track Your Order", href: "/TrackOrder" },
+      { label: "Shipping & Returns", href: "/shipping" },
+      { label: "FAQ", href: "/faq" },
+    ],
+  },
+  {
+    heading: "Services",
+    links: [
+      { label: "Personalization", href: "/Personalization" },
+      { label: "Find a Store", href: "/stores" },
+      { label: "Book an Appointment", href: "/appointments" },
+      { label: "Gift Cards", href: "/gift-cards" },
+    ],
+  },
+  {
+    heading: "The Company",
+    links: [
+      { label: "About Us", href: "/About" },
+      { label: "Sustainability", href: "/sustainability" },
+      { label: "Press", href: "/press" },
+      { label: "Careers", href: "/careers" },
+    ],
+  },
+];
+
+const socials = [
+  { Icon: Instagram, href: "https://instagram.com", label: "Instagram" },
+  { Icon: Facebook, href: "https://facebook.com", label: "Facebook" },
+  { Icon: Twitter, href: "https://twitter.com", label: "Twitter" },
+  { Icon: Youtube, href: "https://youtube.com", label: "YouTube" },
+];
 
 const Footer = () => {
+  const [email, setEmail] = useState("");
+  const [status, setStatus] = useState("idle"); // idle | submitting | success | error
+  const [errorMsg, setErrorMsg] = useState("");
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setErrorMsg("");
+    const trimmed = email.trim();
+    const isValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed);
+    if (!isValid) {
+      setStatus("error");
+      setErrorMsg("Please enter a valid email address.");
+      return;
+    }
+
+    setStatus("submitting");
+    try {
+      // Replace with your real endpoint:
+      // await fetch("/api/newsletter", { method: "POST", body: JSON.stringify({ email: trimmed }) });
+      await new Promise((r) => setTimeout(r, 600));
+      setStatus("success");
+      setEmail("");
+    } catch {
+      setStatus("error");
+      setErrorMsg("Something went wrong. Please try again.");
+    }
+  };
+
+  const year = new Date().getFullYear();
+
   return (
-    <footer className="bg-black text-white">
-      {/* Main Footer Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {/* Customer Care */}
-          <div>
-            <h3 className="text-lg font-semibold mb-6">CUSTOMER CARE</h3>
-            <ul className="space-y-3 text-sm">
-              <li><Link href="/ContactUs" className="hover:text-gray-300 transition-colors">Contact Us</Link></li>
-              <li><Link href="/SizeGuide" className="hover:text-gray-300 transition-colors">Size Guide</Link></li>
-              <li><Link href="/care-instructions" className="hover:text-gray-300 transition-colors">Care Instructions</Link></li>
-              <li><Link href="/TrackOrder" className="hover:text-gray-300 transition-colors">Track Your Order</Link></li>
-            </ul>
+    <footer className="bg-neutral-950 text-neutral-200" aria-labelledby="footer-heading">
+      <h2 id="footer-heading" className="sr-only">
+        Site footer
+      </h2>
+
+      {/* Top: brand + newsletter */}
+      <div className="border-b border-white/10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 md:py-20 grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16">
+          {/* Brand */}
+          <div className="lg:col-span-5">
+            <Link href="/" className="inline-block group">
+              <span className="block font-serif text-3xl md:text-4xl tracking-tight text-white">
+                Unice <em className="italic text-orange-400/90">Stitches</em>
+              </span>
+              <span className="block mt-2 text-[11px] uppercase tracking-[0.3em] text-white/50">
+                Tailored in Lagos · Worn worldwide
+              </span>
+            </Link>
+            <p className="mt-6 text-sm leading-relaxed text-white/70 max-w-md">
+              Garments built to outlast the season. Every stitch is intentional, every silhouette
+              considered — designed for the modern wearer who values craft over noise.
+            </p>
           </div>
 
-          {/* Services */}
-          <div>
-            <h3 className="text-lg font-semibold mb-6">SERVICES</h3>
-            <ul className="space-y-3 text-sm">
-              <li><Link href="/Personalization" className="hover:text-gray-300 transition-colors">Personalization</Link></li>
-              <li><Link href="/stores" className="hover:text-gray-300 transition-colors">Find a Store</Link></li>
-              <li><Link href="/appointments" className="hover:text-gray-300 transition-colors">Book an Appointment</Link></li>
-            </ul>
-          </div>
+          {/* Newsletter */}
+          <div className="lg:col-span-7 lg:pl-12 lg:border-l lg:border-white/10">
+            <p className="text-[11px] uppercase tracking-[0.25em] text-orange-400/90 mb-3">
+              The Newsletter
+            </p>
+            <h3 className="font-serif text-2xl md:text-3xl text-white leading-snug max-w-lg">
+              Front-row access to new releases, private sales, and the stories behind each piece.
+            </h3>
 
-          {/* The Company */}
-          <div>
-            <h3 className="text-lg font-semibold mb-6">THE COMPANY</h3>
-            <ul className="space-y-3 text-sm">
-              <li><Link href="/About" className="hover:text-gray-300 transition-colors">About Us</Link></li>
-              <li><Link href="/sustainability" className="hover:text-gray-300 transition-colors">Sustainability</Link></li>
-              <li><Link href="/press" className="hover:text-gray-300 transition-colors">Press</Link></li>
-            </ul>
-          </div>
-
-          {/* Connect */}
-          <div>
-            <h3 className="text-lg font-semibold mb-6">CONNECT</h3>
-            
-            {/* Newsletter */}
-            <div className="mb-6">
-              <p className="text-sm mb-4">
-                Subscribe to receive updates, access to exclusive deals, and more.
-              </p>
-              <div className="flex">
+            <form onSubmit={handleSubmit} noValidate className="mt-6 max-w-md" aria-label="Newsletter signup">
+              <div
+                className={`flex items-center border-b transition-colors ${
+                  status === "error"
+                    ? "border-red-400"
+                    : "border-white/30 focus-within:border-white"
+                }`}
+              >
+                <label htmlFor="footer-newsletter-email" className="sr-only">
+                  Email address
+                </label>
                 <input
+                  id="footer-newsletter-email"
                   type="email"
-                  placeholder="Your email"
-                  className="flex-1 px-3 py-2 bg-transparent border border-gray-600 text-white placeholder-gray-400 text-sm focus:border-white focus:outline-none"
+                  required
+                  autoComplete="email"
+                  value={email}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    if (status !== "idle") setStatus("idle");
+                  }}
+                  disabled={status === "submitting" || status === "success"}
+                  placeholder="your@email.com"
+                  aria-invalid={status === "error"}
+                  aria-describedby="footer-newsletter-msg"
+                  className="flex-1 bg-transparent py-3 text-sm text-white placeholder-white/40 outline-none disabled:opacity-50"
                 />
-                <button className="px-4 py-2 bg-white text-black text-sm font-medium hover:bg-gray-100 transition-colors">
-                  JOIN
+                <button
+                  type="submit"
+                  disabled={status === "submitting" || status === "success"}
+                  className="ml-3 inline-flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-white py-3 px-2 hover:gap-3 transition-all disabled:opacity-50 focus:outline-none focus-visible:underline underline-offset-4"
+                >
+                  {status === "success" ? (
+                    <>
+                      Subscribed <Check size={14} />
+                    </>
+                  ) : status === "submitting" ? (
+                    "Joining…"
+                  ) : (
+                    <>
+                      Subscribe <ArrowRight size={14} />
+                    </>
+                  )}
                 </button>
               </div>
-            </div>
-
-            {/* Social Media */}
-            <div>
-              <p className="text-sm mb-4">Follow Us</p>
-              <div className="flex space-x-4">
-                <a href="#" className="hover:text-gray-300 transition-colors" aria-label="Facebook">
-                  <Facebook size={20} />
-                </a>
-                <a href="#" className="hover:text-gray-300 transition-colors" aria-label="Instagram">
-                  <Instagram size={20} />
-                </a>
-                <a href="#" className="hover:text-gray-300 transition-colors" aria-label="Twitter">
-                  <Twitter size={20} />
-                </a>
-                <a href="#" className="hover:text-gray-300 transition-colors" aria-label="YouTube">
-                  <Youtube size={20} />
-                </a>
-              </div>
-            </div>
+              <p
+                id="footer-newsletter-msg"
+                role={status === "error" ? "alert" : "status"}
+                className={`mt-3 text-xs min-h-[1rem] ${
+                  status === "error"
+                    ? "text-red-400"
+                    : status === "success"
+                    ? "text-emerald-400"
+                    : "text-white/40"
+                }`}
+              >
+                {status === "error"
+                  ? errorMsg
+                  : status === "success"
+                  ? "Welcome aboard. Check your inbox to confirm."
+                  : "By subscribing, you agree to our Privacy Policy. Unsubscribe anytime."}
+              </p>
+            </form>
           </div>
         </div>
+      </div>
 
-        {/* Contact Information */}
-        <div className="mt-12 pt-8 border-t border-gray-800">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm">
-            <div className="flex items-center space-x-3">
-              <Phone size={16} className="text-gray-400" />
-              <span>Customer Service: 1-877-482-2430</span>
-            </div>
-            <div className="flex items-center space-x-3">
-              <Mail size={16} className="text-gray-400" />
-              <span>customerservice@unicestitches.com</span>
-            </div>
-            <div className="flex items-center space-x-3">
-              <MapPin size={16} className="text-gray-400" />
-              <span>Find a Store Near You</span>
+      {/* Middle: link columns + contact */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-10 md:gap-12">
+          {linkColumns.map(({ heading, links }) => (
+            <nav key={heading} aria-label={heading}>
+              <h3 className="text-[11px] uppercase tracking-[0.25em] text-white/50 mb-5">
+                {heading}
+              </h3>
+              <ul className="space-y-3">
+                {links.map((l) => (
+                  <li key={l.href}>
+                    <Link
+                      href={l.href}
+                      className="text-sm text-white/80 hover:text-white transition-colors inline-flex items-center gap-1.5 group"
+                    >
+                      {l.label}
+                      <ArrowRight
+                        size={12}
+                        className="opacity-0 -translate-x-1 group-hover:opacity-60 group-hover:translate-x-0 transition-all"
+                        aria-hidden="true"
+                      />
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          ))}
+
+          {/* Contact */}
+          <div>
+            <h3 className="text-[11px] uppercase tracking-[0.25em] text-white/50 mb-5">
+              Contact
+            </h3>
+            <ul className="space-y-4 text-sm">
+              <li>
+                <a
+                  href="tel:18774822430"
+                  className="flex items-start gap-3 text-white/80 hover:text-white transition-colors"
+                >
+                  <Phone size={15} className="mt-0.5 text-white/40 shrink-0" aria-hidden="true" />
+                  <span>1-877-482-2430</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  href="mailto:hello@unicestitches.com"
+                  className="flex items-start gap-3 text-white/80 hover:text-white transition-colors break-all"
+                >
+                  <Mail size={15} className="mt-0.5 text-white/40 shrink-0" aria-hidden="true" />
+                  <span>hello@unicestitches.com</span>
+                </a>
+              </li>
+              <li>
+                <Link
+                  href="/stores"
+                  className="flex items-start gap-3 text-white/80 hover:text-white transition-colors"
+                >
+                  <MapPin size={15} className="mt-0.5 text-white/40 shrink-0" aria-hidden="true" />
+                  <span>Find a store near you</span>
+                </Link>
+              </li>
+            </ul>
+
+            {/* Socials */}
+            <div className="mt-8">
+              <p className="text-[11px] uppercase tracking-[0.25em] text-white/50 mb-3">
+                Follow
+              </p>
+              <ul className="flex items-center gap-2">
+                {socials.map(({ Icon, href, label }) => (
+                  <li key={label}>
+                    <a
+                      href={href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={label}
+                      className="inline-flex w-9 h-9 items-center justify-center rounded-full ring-1 ring-white/15 text-white/70 hover:text-white hover:ring-white/40 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                    >
+                      <Icon size={16} aria-hidden="true" />
+                    </a>
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Bottom Bar */}
-      <div className="border-t border-gray-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0">
-            {/* Logo */}
-            <div className="text-2xl font-bold tracking-wider">
-              UNICE STITCHES
-            </div>
-
-            {/* Legal Links */}
-            <div className="flex flex-wrap justify-center md:justify-end space-x-6 text-sm text-gray-400">
+      {/* Bottom bar */}
+      <div className="border-t border-white/10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col md:flex-row items-center md:justify-between gap-4 text-xs text-white/50">
+          <p>© {year} Unice Stitches. All rights reserved.</p>
+          <ul className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
+            <li>
               <Link href="/Privacy" className="hover:text-white transition-colors">
                 Privacy Policy
               </Link>
+            </li>
+            <li>
               <Link href="/terms" className="hover:text-white transition-colors">
                 Terms of Service
               </Link>
+            </li>
+            <li>
               <Link href="/cookies" className="hover:text-white transition-colors">
                 Cookie Policy
               </Link>
+            </li>
+            <li>
               <Link href="/accessibility" className="hover:text-white transition-colors">
                 Accessibility
               </Link>
-            </div>
-          </div>
-
-          {/* Copyright */}
-          <div className="mt-6 pt-6 border-t border-gray-800 text-center">
-            <p className="text-sm text-gray-400">
-              © 2024 Unice Stitches. All rights reserved.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* Payment Methods */}
-      <div className="bg-gray-900 py-4">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-center space-x-4 opacity-60">
-           
-            
-          </div>
+            </li>
+          </ul>
         </div>
       </div>
     </footer>

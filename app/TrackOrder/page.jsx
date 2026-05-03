@@ -1,141 +1,240 @@
-'use client';
-import React, { useState } from 'react';
-import Footer from '@/components/Footer';
-import Navbar from '@/components/Navbar';
-import Head from 'next/head';
-import { assets } from '@/assets/assets';
+"use client";
+import React, { useState } from "react";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
+import PageHero from "@/components/PageHero";
+import { Package, Mail, Phone, Check, Truck, Home as HomeIcon, ShoppingBag, Boxes } from "lucide-react";
+
+const STEP_ICONS = [ShoppingBag, Boxes, Package, Truck, Truck, HomeIcon];
 
 const TrackOrder = () => {
-  const [orderId, setOrderId] = useState('');
-  const [email, setEmail] = useState('');
+  const [orderId, setOrderId] = useState("");
+  const [email, setEmail] = useState("");
   const [tracking, setTracking] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [status, setStatus] = useState("idle"); // idle | loading
+  const [error, setError] = useState("");
 
-  // Simulate tracking lookup
   const handleTrack = (e) => {
     e.preventDefault();
-    setLoading(true);
+    setError("");
+    if (!orderId.trim()) {
+      setError("Please enter your order ID.");
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      setError("Please enter a valid email.");
+      return;
+    }
+    setStatus("loading");
     setTracking(null);
+
     setTimeout(() => {
-      // Simulated result
       setTracking({
-        status: "In Transit",
+        id: orderId.toUpperCase(),
+        currentStep: 3,
         steps: [
-          { label: "Order Placed", date: "2025-09-01", done: true },
-          { label: "Order Processed", date: "2025-09-02", done: true },
-          { label: "Shipped", date: "2025-09-03", done: true },
-          { label: "In Transit", date: "2025-09-04", done: true },
-          { label: "Out for Delivery", date: null, done: false },
-          { label: "Delivered", date: null, done: false },
+          { label: "Order placed", date: "May 1, 2026" },
+          { label: "Order processed", date: "May 1, 2026" },
+          { label: "Shipped", date: "May 2, 2026" },
+          { label: "In transit", date: "May 3, 2026" },
+          { label: "Out for delivery", date: null },
+          { label: "Delivered", date: null },
         ],
-        expected: "2025-09-08",
+        carrier: "DHL Express",
+        carrierRef: "JJD0099887766",
+        expected: "May 6, 2026",
       });
-      setLoading(false);
-    }, 1500);
+      setStatus("idle");
+    }, 1200);
   };
 
   return (
     <>
-      <Head>
-        <title>Track Order | Unice Stitches</title>
-      </Head>
       <Navbar />
-      <div className="bg-white w-full min-h-screen flex flex-col items-center">
-        {/* Hero Section with background image */}
-        <div
-          className="w-full h-[300px] md:h-[400px] flex items-center justify-center relative"
-          style={{
-            backgroundImage: `url(${assets.hero1?.src || ""})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-          }}
-        >
-          <div className="absolute inset-0 bg-black bg-opacity-40 z-0" />
-          <h1 className="relative z-10 text-4xl md:text-5xl font-bold text-white bg-black bg-opacity-60 px-8 py-4 rounded-lg animate-fade-in">
-            Track Your Order
-          </h1>
-        </div>
-        {/* Track Order Form */}
-        <div className="max-w-3xl w-full px-6 md:px-0 mx-auto py-12">
-          <h2 className="text-2xl md:text-3xl font-semibold text-center mb-8 tracking-wide">
-            Enter your Order ID and Email to track your order status
-          </h2>
-          <div className="flex flex-col md:flex-row gap-12">
-            {/* Tracking Form */}
+
+      <PageHero
+        eyebrow="Order tracking"
+        title={
+          <>
+            Where's my <em className="italic font-normal text-orange-700">order</em>?
+          </>
+        }
+        description="Enter your order ID and email below to see the latest status and expected delivery."
+        height="md"
+      />
+
+      <main className="max-w-6xl mx-auto px-6 md:px-10 py-20 md:py-24">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
+          {/* Form */}
+          <div className="lg:col-span-5">
             <form
-              className="md:w-1/2 flex flex-col gap-4 bg-gray-50 p-6 rounded-lg shadow"
               onSubmit={handleTrack}
+              aria-label="Track order"
+              className="rounded-2xl bg-neutral-50 p-6 sm:p-10 ring-1 ring-neutral-200"
             >
-              <h3 className="text-lg font-semibold mb-2">Track Order</h3>
-              <input
-                type="text"
-                name="orderId"
-                placeholder="Order ID"
-                className="border-b py-2 px-2 outline-none bg-transparent"
-                value={orderId}
-                onChange={e => setOrderId(e.target.value)}
-                required
-              />
-              <input
-                type="email"
-                name="email"
-                placeholder="Your Email"
-                className="border-b py-2 px-2 outline-none bg-transparent"
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-                required
-              />
+              <div className="flex items-center gap-3 mb-6">
+                <span className="inline-flex w-10 h-10 items-center justify-center rounded-full bg-neutral-950 text-white">
+                  <Package size={16} aria-hidden="true" />
+                </span>
+                <h2 className="font-serif text-2xl text-neutral-900">Track an order</h2>
+              </div>
+
+              <div className="space-y-5">
+                <div>
+                  <label htmlFor="order-id" className="block text-[11px] uppercase tracking-[0.2em] text-neutral-500 mb-2">
+                    Order ID
+                  </label>
+                  <input
+                    id="order-id"
+                    type="text"
+                    value={orderId}
+                    onChange={(e) => setOrderId(e.target.value)}
+                    placeholder="e.g. UNS-12345"
+                    className="w-full bg-white border border-neutral-300 rounded-lg px-4 py-3 text-neutral-900 outline-none focus:border-neutral-900 transition placeholder-neutral-400"
+                    required
+                  />
+                </div>
+                <div>
+                  <label htmlFor="track-email" className="block text-[11px] uppercase tracking-[0.2em] text-neutral-500 mb-2">
+                    Email
+                  </label>
+                  <input
+                    id="track-email"
+                    type="email"
+                    autoComplete="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="The email used at checkout"
+                    className="w-full bg-white border border-neutral-300 rounded-lg px-4 py-3 text-neutral-900 outline-none focus:border-neutral-900 transition placeholder-neutral-400"
+                    required
+                  />
+                </div>
+              </div>
+
               <button
                 type="submit"
-                className="bg-black text-white py-2 rounded mt-2 font-medium hover:bg-gray-800 transition"
-                disabled={loading}
+                disabled={status === "loading"}
+                className="w-full mt-6 inline-flex items-center justify-center gap-2 bg-neutral-950 text-white px-8 py-3.5 text-xs uppercase tracking-[0.2em] font-medium hover:bg-orange-600 transition-colors disabled:opacity-60 focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 focus-visible:ring-offset-2"
               >
-                {loading ? "Tracking..." : "Track Order"}
+                {status === "loading" ? "Looking it up…" : "Track order"}
               </button>
-              {tracking && (
-                <div className="mt-6">
-                  <h4 className="font-semibold text-lg mb-2 text-orange-700">Order Status: {tracking.status}</h4>
-                  <ul className="mb-2">
-                    {tracking.steps.map((step, idx) => (
-                      <li key={idx} className={`flex items-center gap-2 mb-1 ${step.done ? "text-green-700" : "text-gray-500"}`}>
-                        <span className={`inline-block w-3 h-3 rounded-full ${step.done ? "bg-green-500" : "bg-gray-300"}`}></span>
-                        <span>{step.label}</span>
-                        {step.date && <span className="text-xs text-gray-400 ml-2">{step.date}</span>}
-                      </li>
-                    ))}
-                  </ul>
-                  <div className="text-sm text-gray-700">
-                    Expected Delivery: <span className="font-semibold">{tracking.expected}</span>
-                  </div>
-                </div>
+
+              {error && (
+                <p role="alert" className="mt-4 text-sm text-red-600">
+                  {error}
+                </p>
               )}
             </form>
-            {/* Info Section */}
-            <div className="md:w-1/2 flex flex-col gap-6 justify-center">
-              <div>
-                <h3 className="text-lg font-semibold mb-2">Need Help?</h3>
-                <p className="text-gray-700">
-                  Email: <a href="mailto:support@unicestitches.com" className="underline">support@unicestitches.com</a>
-                </p>
-                <p className="text-gray-700">
-                  Phone: <a href="tel:+1234567890" className="underline">+1 (234) 567-890</a>
-                </p>
-                <p className="text-gray-700">
-                  Our team is happy to assist you with your order status or delivery questions.
-                </p>
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold mb-2">Order Tracking Tips</h3>
-                <ul className="list-disc pl-5 text-gray-700 text-sm">
-                  <li>Order ID can be found in your confirmation email.</li>
-                  <li>Tracking updates may take up to 24 hours after shipping.</li>
-                  <li>Contact us if you have not received your order by the expected date.</li>
-                </ul>
+
+            <div className="mt-8 text-sm text-neutral-600 space-y-3">
+              <p className="text-[11px] uppercase tracking-[0.2em] text-neutral-500">Tips</p>
+              <ul className="space-y-2">
+                <li className="flex gap-2">
+                  <span className="text-orange-700 font-serif leading-none mt-0.5">·</span>
+                  Your order ID is in the confirmation email we sent.
+                </li>
+                <li className="flex gap-2">
+                  <span className="text-orange-700 font-serif leading-none mt-0.5">·</span>
+                  Tracking can take up to 24 hours to update after shipping.
+                </li>
+              </ul>
+              <div className="pt-4 border-t border-neutral-200 flex flex-col gap-2">
+                <a href="mailto:support@unicestitches.com" className="inline-flex items-center gap-2 hover:text-orange-700 transition-colors">
+                  <Mail size={14} aria-hidden="true" /> support@unicestitches.com
+                </a>
+                <a href="tel:+12345678900" className="inline-flex items-center gap-2 hover:text-orange-700 transition-colors">
+                  <Phone size={14} aria-hidden="true" /> +1 (234) 567-8900
+                </a>
               </div>
             </div>
           </div>
+
+          {/* Result panel */}
+          <div className="lg:col-span-7">
+            {tracking ? (
+              <div className="rounded-2xl bg-white ring-1 ring-neutral-200 p-6 sm:p-10">
+                <div className="flex flex-wrap items-start justify-between gap-4 pb-6 border-b border-neutral-100">
+                  <div>
+                    <p className="text-[11px] uppercase tracking-[0.2em] text-neutral-500">Order</p>
+                    <p className="font-serif text-2xl text-neutral-900 mt-1">{tracking.id}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-[11px] uppercase tracking-[0.2em] text-neutral-500">Expected delivery</p>
+                    <p className="font-serif text-2xl text-orange-700 mt-1">{tracking.expected}</p>
+                  </div>
+                </div>
+
+                <ol className="mt-8 space-y-6" aria-label="Order progress">
+                  {tracking.steps.map((step, i) => {
+                    const Icon = STEP_ICONS[i] ?? Package;
+                    const done = i <= tracking.currentStep;
+                    const current = i === tracking.currentStep;
+                    return (
+                      <li key={i} className="relative flex items-start gap-4">
+                        {i < tracking.steps.length - 1 && (
+                          <span
+                            aria-hidden="true"
+                            className={`absolute left-[19px] top-10 w-px h-[calc(100%+0.5rem)] ${
+                              done && i < tracking.currentStep ? "bg-orange-700" : "bg-neutral-200"
+                            }`}
+                          />
+                        )}
+                        <span
+                          aria-hidden="true"
+                          className={`relative z-10 inline-flex w-10 h-10 items-center justify-center rounded-full shrink-0 transition-colors ${
+                            done
+                              ? current
+                                ? "bg-orange-700 text-white ring-4 ring-orange-100"
+                                : "bg-orange-700 text-white"
+                              : "bg-neutral-100 text-neutral-400"
+                          }`}
+                        >
+                          {done && !current ? <Check size={16} /> : <Icon size={16} />}
+                        </span>
+                        <div className="pt-1.5 flex-1 flex items-baseline justify-between gap-3">
+                          <p
+                            className={`text-sm ${
+                              current ? "font-medium text-neutral-900" : done ? "text-neutral-900" : "text-neutral-500"
+                            }`}
+                          >
+                            {step.label}
+                            {current && (
+                              <span className="ml-2 text-[10px] uppercase tracking-[0.2em] text-orange-700">
+                                Now
+                              </span>
+                            )}
+                          </p>
+                          {step.date && <p className="text-xs text-neutral-500 shrink-0">{step.date}</p>}
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ol>
+
+                <div className="mt-8 pt-6 border-t border-neutral-100 flex flex-wrap items-center justify-between gap-3 text-sm">
+                  <div>
+                    <p className="text-[11px] uppercase tracking-[0.2em] text-neutral-500">Carrier</p>
+                    <p className="text-neutral-900 mt-1">
+                      {tracking.carrier} · <span className="font-mono text-neutral-600">{tracking.carrierRef}</span>
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="rounded-2xl border-2 border-dashed border-neutral-200 p-10 md:p-14 text-center min-h-[400px] flex flex-col items-center justify-center">
+                <span className="inline-flex w-14 h-14 items-center justify-center rounded-full bg-neutral-100 text-neutral-400 mb-5">
+                  <Package size={22} aria-hidden="true" />
+                </span>
+                <p className="font-serif text-2xl text-neutral-900">No order looked up yet.</p>
+                <p className="mt-3 text-sm text-neutral-500 max-w-sm mx-auto">
+                  Enter your order ID and email to the left and we'll show you exactly where your package is.
+                </p>
+              </div>
+            )}
+          </div>
         </div>
-      </div>
+      </main>
+
       <Footer />
     </>
   );
