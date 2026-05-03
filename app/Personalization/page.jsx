@@ -1,8 +1,5 @@
 'use client';
 import React, { useState } from 'react';
-import Footer from '@/components/Footer';
-import Navbar from '@/components/Navbar';
-import Head from 'next/head';
 import { assets } from '@/assets/assets';
 
 // Google Sheets Script Web App URL (replace with your deployed script URL)
@@ -60,11 +57,6 @@ const Personalization = () => {
   };
 
   return (
-    <>
-      <Head>
-        <title>Personalization | Unice Stitches</title>
-      </Head>
-      <Navbar />
       <div className="bg-white w-full min-h-screen flex flex-col items-center">
         {/* Hero Section with background image */}
         <div
@@ -205,8 +197,6 @@ const Personalization = () => {
           </div>
         </div>
       </div>
-      <Footer />
-    </>
   );
 };
 

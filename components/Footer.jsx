@@ -19,28 +19,21 @@ const linkColumns = [
     links: [
       { label: "Contact Us", href: "/ContactUs" },
       { label: "Size Guide", href: "/SizeGuide" },
-      { label: "Care Instructions", href: "/care-instructions" },
-      { label: "Track Your Order", href: "/TrackOrder" },
-      { label: "Shipping & Returns", href: "/shipping" },
-      { label: "FAQ", href: "/faq" },
     ],
   },
   {
     heading: "Services",
     links: [
       { label: "Personalization", href: "/Personalization" },
-      { label: "Find a Store", href: "/stores" },
       { label: "Book an Appointment", href: "/appointments" },
-      { label: "Gift Cards", href: "/gift-cards" },
     ],
   },
   {
     heading: "The Company",
     links: [
       { label: "About Us", href: "/About" },
-      { label: "Sustainability", href: "/sustainability" },
-      { label: "Press", href: "/press" },
-      { label: "Careers", href: "/careers" },
+      { label: "Contact Us", href: "/ContactUs" },
+
     ],
   },
 ];

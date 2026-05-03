@@ -15,8 +15,9 @@ import Image from "next/image";
  */
 const heightMap = {
   sm: "h-[40vh] min-h-[280px] md:h-[50vh] md:min-h-[360px]",
-  md: "h-[55vh] min-h-[360px] md:h-[60vh] md:min-h-[440px]",
-  lg: "h-[70vh] min-h-[440px] md:h-[75vh] md:min-h-[560px]",
+  md: "h-[55vh] min-h-[360px] md:h-[65vh] md:min-h-[480px]",
+  lg: "h-[75vh] min-h-[480px] md:h-[85vh] md:min-h-[600px]",
+  tall: "h-[85vh] min-h-[560px] md:h-screen md:min-h-[700px]",
 };
 
 const PageHero = ({
@@ -33,8 +34,8 @@ const PageHero = ({
   return (
     <section
       aria-label={typeof title === "string" ? title : "Page header"}
-      // pt offsets the fixed navbar (h-16 mobile, h-20 desktop); section content centers in the remaining area
-      className={`relative w-full ${heightMap[height]} pt-16 md:pt-20 overflow-hidden ${
+      // pt offsets promo banner (h-10 = 40px) + navbar (h-16 md:h-20)
+      className={`relative w-full ${heightMap[height] ?? heightMap.md} pt-[104px] md:pt-[120px] overflow-hidden ${
         image ? "bg-neutral-900" : "bg-neutral-50"
       }`}
     >

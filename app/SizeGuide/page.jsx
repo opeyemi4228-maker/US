@@ -1,7 +1,5 @@
 "use client";
 import React, { useState } from "react";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import PageHero from "@/components/PageHero";
 import { Ruler, Mail, Phone, Sparkles } from "lucide-react";
 
@@ -74,8 +72,6 @@ const SizeGuide = () => {
 
   return (
     <>
-      <Navbar />
-
       <PageHero
         eyebrow="Size & fit"
         title={
@@ -287,8 +283,6 @@ const SizeGuide = () => {
           </p>
         </section>
       </main>
-
-      <Footer />
     </>
   );
 };

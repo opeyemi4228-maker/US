@@ -1,8 +1,5 @@
 'use client'
 import React, { useState } from 'react';
-import Footer from '@/components/Footer';
-import Navbar from '@/components/Navbar';
-import Head from 'next/head';
 
 const LoginSignUp = () => {
   const [currentState, setCurrentState] = useState('Login');
@@ -13,12 +10,6 @@ const LoginSignUp = () => {
   };
 
   return (
-    <>
-      <Head>
-        <title>Unice Stitches | {currentState}</title>
-      </Head>
-      <Navbar />
-      
       <main className="flex flex-col items-center justify-center min-h-[80vh] bg-white pt-20 pb-8 px-2 sm:px-4">
         <div className="w-full max-w-md sm:max-w-lg md:max-w-md mx-auto bg-white border border-gray-200 rounded-lg shadow-lg px-4 sm:px-8 py-8 sm:py-10">
           <h1 className="text-xl sm:text-2xl font-semibold text-center mb-6 tracking-widest uppercase">
@@ -103,8 +94,6 @@ const LoginSignUp = () => {
           </div>
         </div>
       </main>
-      <Footer />
-    </>
   );
 };
 

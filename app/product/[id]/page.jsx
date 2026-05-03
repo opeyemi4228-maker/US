@@ -17,8 +17,6 @@ import {
   Check,
   Star,
 } from "lucide-react";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import ProductCard from "@/components/ProductCard";
 import Loading from "@/components/Loading";
 import { useAppContext } from "@/context/AppContext";
@@ -308,8 +306,6 @@ const Product = () => {
 
   return (
     <>
-      <Navbar />
-
       <article
         // pt offsets the fixed Navbar height (16/20)
         className="pt-20 md:pt-28"
@@ -688,8 +684,6 @@ const Product = () => {
           {!inStock ? "Sold out" : "Add to bag"}
         </button>
       </div>
-
-      <Footer />
     </>
   );
 };

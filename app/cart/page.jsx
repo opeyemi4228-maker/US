@@ -13,11 +13,6 @@ const OrderSummary = dynamic(() => import("@/components/OrderSummary"), {
     <div className="w-full md:w-[380px] h-64 bg-white rounded-2xl animate-pulse" />
   ),
 });
-const Navbar = dynamic(() => import("@/components/Navbar"), {
-  ssr: false,
-  loading: () => <div style={{ height: 64 }} />,
-});
-
 /* ── Empty state ──────────────────────────────────────────── */
 const EmptyCart = () => (
   <div className="flex flex-col items-center justify-center py-32 gap-6 text-center">
@@ -144,9 +139,6 @@ const Cart = () => {
   const count = getCartCount();
 
   return (
-    <>
-      <Navbar />
-
       <main className="min-h-screen bg-[#f5f5f5]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 pt-10 pb-24">
 
@@ -226,7 +218,6 @@ const Cart = () => {
           )}
         </div>
       </main>
-    </>
   );
 };
 

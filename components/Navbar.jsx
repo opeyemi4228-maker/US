@@ -7,11 +7,11 @@ import { Menu, X, ShoppingBag, Package, User, Search } from "lucide-react";
 import { useAppContext } from "@/context/AppContext";
 
 const navLinks = [
+  { label: "Home", href: "/" },
   { label: "New Arrivals", href: "/all-products" },
   { label: "Women", href: "/ShopWomen" },
   { label: "Men", href: "/ShopMen" },
-  { label: "Collections", href: "/collections" },
-  { label: "Stories", href: "/stories" },
+  { label: "About Us", href: "/About" },
 ];
 
 // Throttled scroll detection
@@ -100,7 +100,7 @@ const Navbar = () => {
   return (
     <>
       <header
-        className={`fixed top-0 inset-x-0 z-40 transition-all duration-500 ease-out
+        className={`fixed top-10 inset-x-0 z-40 transition-all duration-500 ease-out
           ${isTransparent
             ? "bg-transparent"
             : "bg-white/95 backdrop-blur-md border-b border-neutral-200/80 shadow-[0_1px_0_0_rgba(0,0,0,0.02)]"}`}
@@ -161,15 +161,6 @@ const Navbar = () => {
 
           {/* Right — actions */}
           <div className="flex items-center gap-1 md:gap-3 flex-1 justify-end md:flex-initial">
-            <button
-              type="button"
-              aria-label="Search"
-              onClick={() => router.push("/search")}
-              className={`inline-flex items-center justify-center w-10 h-10 rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-current
-                ${isTransparent ? "text-white hover:bg-white/10" : "text-neutral-900 hover:bg-neutral-100"}`}
-            >
-              <Search size={18} aria-hidden="true" />
-            </button>
 
             <Link
               href="/cart"

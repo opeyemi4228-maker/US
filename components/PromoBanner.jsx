@@ -37,7 +37,7 @@ const PromoBanner = () => {
 
   return (
     <div
-      className="relative w-full bg-neutral-950 text-white border-b border-white/5"
+      className="fixed top-0 inset-x-0 z-50 h-10 bg-neutral-950 text-white border-b border-white/5"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       onFocus={() => setPaused(true)}

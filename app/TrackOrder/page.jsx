@@ -1,7 +1,5 @@
 "use client";
 import React, { useState } from "react";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import PageHero from "@/components/PageHero";
 import { Package, Mail, Phone, Check, Truck, Home as HomeIcon, ShoppingBag, Boxes } from "lucide-react";
 
@@ -50,8 +48,6 @@ const TrackOrder = () => {
 
   return (
     <>
-      <Navbar />
-
       <PageHero
         eyebrow="Order tracking"
         title={
@@ -234,8 +230,6 @@ const TrackOrder = () => {
           </div>
         </div>
       </main>
-
-      <Footer />
     </>
   );
 };
