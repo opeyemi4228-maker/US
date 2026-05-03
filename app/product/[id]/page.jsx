@@ -1,12 +1,12 @@
 "use client";
-import React, { useEffect, useState, useMemo, useCallback } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
+import toast from "react-hot-toast";
 import {
   ChevronLeft,
   ChevronRight,
-  ChevronDown,
   Heart,
   Share2,
   Truck,
@@ -30,7 +30,6 @@ const formatPrice = (n, currency = "USD") =>
     maximumFractionDigits: 0,
   }).format(Number(n) || 0);
 
-// Default sizes & colors used if the product object doesn't define its own
 const DEFAULT_SIZES = ["XS", "S", "M", "L", "XL", "XXL"];
 const DEFAULT_COLORS = [
   { name: "Charcoal", hex: "#2A2A2A" },
@@ -40,7 +39,6 @@ const DEFAULT_COLORS = [
 
 // ---------- Subcomponents ----------
 
-/** Breadcrumb trail */
 const Breadcrumbs = ({ category, name }) => (
   <nav aria-label="Breadcrumb" className="text-xs uppercase tracking-[0.2em] text-neutral-500">
     <ol className="flex items-center flex-wrap gap-x-2 gap-y-1">
@@ -76,7 +74,6 @@ const Breadcrumbs = ({ category, name }) => (
   </nav>
 );
 
-/** Sticky product gallery with vertical thumbnails on desktop, swipe on mobile */
 const ProductGallery = ({ images, name }) => {
   const [active, setActive] = useState(0);
   const [zoom, setZoom] = useState({ active: false, x: 50, y: 50 });
@@ -94,7 +91,6 @@ const ProductGallery = ({ images, name }) => {
   return (
     <div className="md:sticky md:top-28 lg:top-32 self-start">
       <div className="flex gap-4">
-        {/* Vertical thumbnail rail — desktop only */}
         {images.length > 1 && (
           <ul className="hidden md:flex flex-col gap-3 w-20 lg:w-24 shrink-0">
             {images.map((img, i) => (
@@ -109,20 +105,13 @@ const ProductGallery = ({ images, name }) => {
                       : "ring-1 ring-transparent hover:ring-neutral-300 opacity-70 hover:opacity-100"
                   }`}
                 >
-                  <Image
-                    src={img}
-                    alt=""
-                    fill
-                    sizes="96px"
-                    className="object-cover"
-                  />
+                  <Image src={img} alt="" fill sizes="96px" className="object-cover" />
                 </button>
               </li>
             ))}
           </ul>
         )}
 
-        {/* Main image */}
         <div className="flex-1 relative">
           <div
             className="relative aspect-[4/5] overflow-hidden bg-neutral-100 cursor-zoom-in"
@@ -138,15 +127,10 @@ const ProductGallery = ({ images, name }) => {
               className={`object-cover transition-transform duration-500 ease-out ${
                 zoom.active ? "scale-150" : "scale-100"
               }`}
-              style={
-                zoom.active
-                  ? { transformOrigin: `${zoom.x}% ${zoom.y}%` }
-                  : undefined
-              }
+              style={zoom.active ? { transformOrigin: `${zoom.x}% ${zoom.y}%` } : undefined}
             />
           </div>
 
-          {/* Mobile arrows */}
           {images.length > 1 && (
             <div className="md:hidden absolute inset-x-0 top-1/2 -translate-y-1/2 flex items-center justify-between px-3 pointer-events-none">
               <button
@@ -166,7 +150,6 @@ const ProductGallery = ({ images, name }) => {
             </div>
           )}
 
-          {/* Mobile dot indicators */}
           {images.length > 1 && (
             <div className="md:hidden flex items-center justify-center gap-2 mt-4">
               {images.map((_, i) => (
@@ -187,7 +170,6 @@ const ProductGallery = ({ images, name }) => {
   );
 };
 
-/** Accordion item — collapsible product details */
 const Accordion = ({ title, defaultOpen = false, children }) => {
   const [open, setOpen] = useState(defaultOpen);
   return (
@@ -217,7 +199,6 @@ const Accordion = ({ title, defaultOpen = false, children }) => {
   );
 };
 
-/** Star rating row — restrained, used in reviews accordion only */
 const StarRow = ({ value = 4.5, count }) => (
   <div className="flex items-center gap-2">
     <span className="flex items-center gap-0.5" aria-label={`Rated ${value} out of 5`}>
@@ -247,16 +228,16 @@ const Product = () => {
     [products, id]
   );
 
-  // Selection state
   const [selectedSize, setSelectedSize] = useState("");
   const [selectedColor, setSelectedColor] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [wishlisted, setWishlisted] = useState(false);
-  const [feedback, setFeedback] = useState(""); // "added" | "size-required" | ""
+  const [feedback, setFeedback] = useState(""); // "added" | "size-required" | "link-copied"
+  const [adding, setAdding] = useState(false);
 
-  // Reset feedback after a moment
+  // Reset transient feedback after a moment
   useEffect(() => {
-    if (!feedback) return;
+    if (!feedback || feedback === "size-required") return;
     const t = setTimeout(() => setFeedback(""), 2500);
     return () => clearTimeout(t);
   }, [feedback]);
@@ -273,15 +254,53 @@ const Product = () => {
   const inStock = product.stock !== 0;
   const lowStock = typeof product.stock === "number" && product.stock > 0 && product.stock <= 3;
 
-  const handleAddToCart = (goToCart = false) => {
-    if (!selectedSize) {
+  // ---------- The actual add-to-cart logic ----------
+  // Calls context's addToCart() once per quantity unit. Compatible with the
+  // original simple addToCart(productId) signature. Optionally passes a
+  // variant object as a second argument if your context supports it —
+  // contexts that ignore extra args won't break.
+  const performAdd = () => {
+    const variant = {
+      size: selectedSize,
+      color: colors[selectedColor]?.name,
+    };
+    for (let i = 0; i < quantity; i++) {
+      try {
+        addToCart(product._id, variant);
+      } catch {
+        addToCart(product._id);
+      }
+    }
+  };
+
+  const handleAddToCart = async (goToCart = false) => {
+    if (sizes.length > 0 && !selectedSize) {
       setFeedback("size-required");
+      toast.error("Please select a size first");
       return;
     }
-    addToCart(product._id, { size: selectedSize, color: colors[selectedColor]?.name, quantity });
-    setFeedback("added");
-    if (goToCart) {
-      setTimeout(() => router.push("/cart"), 400);
+    if (!inStock || adding) return;
+
+    setAdding(true);
+    setFeedback("");
+
+    try {
+      performAdd();
+      setFeedback("added");
+      toast.success(
+        `Added to bag · ${product.name}${selectedSize ? ` · ${selectedSize}` : ""}${
+          quantity > 1 ? ` × ${quantity}` : ""
+        }`
+      );
+
+      if (goToCart) {
+        // Brief pause so the user sees the "Added" state before navigation.
+        setTimeout(() => router.push("/cart"), 350);
+      }
+    } catch (err) {
+      toast.error("Couldn't add to bag. Please try again.");
+    } finally {
+      setAdding(false);
     }
   };
 
@@ -293,35 +312,32 @@ const Product = () => {
       } catch {
         /* user cancelled */
       }
-    } else {
-      navigator.clipboard?.writeText(url);
-      setFeedback("link-copied");
+    } else if (navigator.clipboard) {
+      try {
+        await navigator.clipboard.writeText(url);
+        setFeedback("link-copied");
+        toast.success("Link copied");
+      } catch {
+        toast.error("Couldn't copy link");
+      }
     }
   };
 
-  // Curated "you may also like" — same category, exclude self, take 4
   const related = (products ?? [])
     .filter((p) => p._id !== product._id && p.category === product.category)
     .slice(0, 4);
 
   return (
     <>
-      <article
-        // pt offsets the fixed Navbar height (16/20)
-        className="pt-20 md:pt-28"
-      >
-        {/* Top bar with breadcrumbs */}
+      <article className="pt-20 md:pt-28 pb-24 md:pb-0">
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10 pb-6">
           <Breadcrumbs category={product.category} name={product.name} />
         </div>
 
-        {/* Two-column layout: gallery + details */}
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-14 lg:gap-20">
-            {/* LEFT — gallery */}
             <ProductGallery images={images} name={product.name} />
 
-            {/* RIGHT — product details */}
             <div className="md:py-2">
               {product.collection && (
                 <p className="text-[11px] uppercase tracking-[0.3em] text-orange-700 mb-3">
@@ -338,7 +354,6 @@ const Product = () => {
                 </p>
               )}
 
-              {/* Price */}
               <div className="mt-6 flex items-baseline flex-wrap gap-x-4 gap-y-1">
                 <span className="text-2xl md:text-3xl text-neutral-900">
                   {formatPrice(product.offerPrice ?? product.price)}
@@ -358,7 +373,6 @@ const Product = () => {
                 Tax included. Shipping calculated at checkout.
               </p>
 
-              {/* Stock indicator */}
               {!inStock ? (
                 <p className="mt-5 inline-flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-red-600">
                   <span aria-hidden="true" className="w-1.5 h-1.5 rounded-full bg-red-600" />
@@ -378,7 +392,6 @@ const Product = () => {
 
               <hr className="my-8 border-neutral-200" />
 
-              {/* Color picker */}
               {colors.length > 0 && (
                 <div className="mb-7">
                   <div className="flex items-baseline justify-between mb-3">
@@ -411,7 +424,6 @@ const Product = () => {
                 </div>
               )}
 
-              {/* Size picker */}
               {sizes.length > 0 && (
                 <div className="mb-7">
                   <div className="flex items-baseline justify-between mb-3">
@@ -494,7 +506,7 @@ const Product = () => {
               <div className="space-y-3">
                 <button
                   onClick={() => handleAddToCart(false)}
-                  disabled={!inStock}
+                  disabled={!inStock || adding}
                   className="w-full inline-flex items-center justify-center gap-3 bg-neutral-950 text-white py-4 text-xs uppercase tracking-[0.2em] font-medium hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 focus-visible:ring-offset-2"
                 >
                   {feedback === "added" ? (
@@ -502,6 +514,8 @@ const Product = () => {
                       <Check size={14} aria-hidden="true" />
                       Added to bag
                     </>
+                  ) : adding ? (
+                    "Adding…"
                   ) : !inStock ? (
                     "Sold out"
                   ) : (
@@ -512,7 +526,7 @@ const Product = () => {
                 <div className="grid grid-cols-2 gap-3">
                   <button
                     onClick={() => handleAddToCart(true)}
-                    disabled={!inStock}
+                    disabled={!inStock || adding}
                     className="inline-flex items-center justify-center py-3.5 text-xs uppercase tracking-[0.2em] ring-1 ring-neutral-900 text-neutral-900 hover:bg-neutral-950 hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 focus-visible:ring-offset-2"
                   >
                     Buy now
@@ -569,7 +583,7 @@ const Product = () => {
                 </div>
               </div>
 
-              {/* Accordion details */}
+              {/* Accordions */}
               <div className="mt-10">
                 <Accordion title="Description" defaultOpen>
                   <p>{product.description}</p>
@@ -616,7 +630,6 @@ const Product = () => {
           </div>
         </div>
 
-        {/* You may also like — curated, not random */}
         {related.length > 0 && (
           <section
             aria-labelledby="related-heading"
@@ -678,10 +691,21 @@ const Product = () => {
         </div>
         <button
           onClick={() => handleAddToCart(false)}
-          disabled={!inStock}
+          disabled={!inStock || adding}
           className="flex-1 py-3 bg-neutral-950 text-white text-xs uppercase tracking-[0.2em] hover:bg-orange-600 transition-colors disabled:opacity-50"
         >
-          {!inStock ? "Sold out" : "Add to bag"}
+          {feedback === "added" ? (
+            <span className="inline-flex items-center justify-center gap-1.5">
+              <Check size={13} aria-hidden="true" />
+              Added
+            </span>
+          ) : adding ? (
+            "Adding…"
+          ) : !inStock ? (
+            "Sold out"
+          ) : (
+            "Add to bag"
+          )}
         </button>
       </div>
     </>
