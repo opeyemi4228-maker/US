@@ -36,7 +36,7 @@ const HomeProducts = () => {
       </header>
 
       {/* Product grid */}
-      {!products ? (
+      {products == null ? (
         // Loading skeleton
         <ul
           className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-5 gap-y-12 md:gap-x-8 md:gap-y-16"

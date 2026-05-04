@@ -18,7 +18,7 @@ export const AppContextProvider = (props) => {
     const { user } = useUser()
     const { getToken } = useAuth()
 
-    const [products, setProducts] = useState([])
+    const [products, setProducts] = useState(null)
     const [userData, setUserData] = useState(null)
     const [isSeller, setIsSeller] = useState(false)
     const [cartItems, setCartItems] = useState({})
@@ -94,7 +94,7 @@ export const AppContextProvider = (props) => {
     const getCartAmount = () => {
         let totalAmount = 0;
         for (const items in cartItems) {
-            let itemInfo = products.find((product) => product._id === items);
+            let itemInfo = (products ?? []).find((product) => product._id === items);
             if (itemInfo && cartItems[items] > 0) {
                 totalAmount += itemInfo.offerPrice * cartItems[items];
             }

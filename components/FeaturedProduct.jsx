@@ -6,7 +6,7 @@ import Link from "next/link";
 const collections = [
   {
     id: 1,
-    href: "/collection/modern-omoluabi",
+    href: "/all-products",
     image: assets.girl_with_headphone_image,
     eyebrow: "Heritage",
     title: "Modern Ọmọlúàbí",
@@ -15,7 +15,7 @@ const collections = [
   },
   {
     id: 2,
-    href: "/collection/refined-radiance",
+    href: "/all-products",
     image: assets.girl_with_earphone_image,
     eyebrow: "Womenswear",
     title: "Refined Radiance",
@@ -24,7 +24,7 @@ const collections = [
   },
   {
     id: 3,
-    href: "/collection/styled-to-explore",
+    href: "/all-products",
     image: assets.boy_with_laptop_image,
     eyebrow: "Daywear",
     title: "Styled to Explore",

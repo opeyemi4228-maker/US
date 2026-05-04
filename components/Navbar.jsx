@@ -207,7 +207,7 @@ const Navbar = () => {
         role="dialog"
         aria-modal="true"
         aria-label="Mobile menu"
-        className={`md:hidden fixed inset-0 z-50 transition-opacity duration-300 ${
+        className={`md:hidden fixed inset-0 z-[60] transition-opacity duration-300 ${
           mobileOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
         }`}
       >
