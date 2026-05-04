@@ -1,62 +1,78 @@
-import React from 'react'
-import { assets } from '@/assets/assets'
-import Image from 'next/image';
-import { useAppContext } from '@/context/AppContext';
+"use client";
+import React from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { Heart } from "lucide-react";
+import { useAppContext } from "@/context/AppContext";
 
 const ProductCard = ({ product }) => {
+  const { currency } = useAppContext();
 
-    const { currency, router } = useAppContext()
+  const image = Array.isArray(product.image) ? product.image[0] : product.image;
+  const hasDiscount =
+    product.price && product.offerPrice && product.price > product.offerPrice;
+  const discountPct = hasDiscount
+    ? Math.round(((product.price - product.offerPrice) / product.price) * 100)
+    : 0;
 
-    return (
-        <div
-            onClick={() => { router.push('/product/' + product._id); scrollTo(0, 0) }}
-            className="flex flex-col items-start gap-0.5 max-w-[200px] w-full cursor-pointer"
+  return (
+    <Link
+      href={`/product/${product._id}`}
+      className="group block w-full focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 focus-visible:ring-offset-4"
+    >
+      {/* Image */}
+      <div className="relative aspect-[4/5] overflow-hidden bg-neutral-100">
+        {image && (
+          <Image
+            src={image}
+            alt={product.name}
+            fill
+            sizes="(min-width: 1280px) 20vw, (min-width: 1024px) 25vw, (min-width: 768px) 33vw, 50vw"
+            className="object-cover transition-transform duration-700 ease-out group-hover:scale-105 motion-reduce:group-hover:scale-100"
+          />
+        )}
+
+        {/* Discount badge */}
+        {discountPct > 0 && (
+          <span className="absolute top-3 left-3 text-[10px] uppercase tracking-[0.18em] bg-orange-700 text-white px-2 py-0.5">
+            −{discountPct}%
+          </span>
+        )}
+
+        {/* Wishlist */}
+        <button
+          type="button"
+          aria-label={`Save ${product.name}`}
+          onClick={(e) => e.preventDefault()}
+          className="absolute top-2.5 right-2.5 w-8 h-8 flex items-center justify-center bg-white/90 backdrop-blur-sm text-neutral-700 opacity-0 group-hover:opacity-100 transition-opacity hover:text-orange-700 focus:outline-none focus-visible:opacity-100"
         >
-            <div className="cursor-pointer group relative bg-gray-500/10 rounded-lg w-full h-52 flex items-center justify-center">
-                <Image
-                    src={product.image[0]}
-                    alt={product.name}
-                    className="group-hover:scale-105 transition object-cover w-4/5 h-4/5 md:w-full md:h-full"
-                    width={800}
-                    height={800}
-                />
-                <button className="absolute top-2 right-2 bg-white p-2 rounded-full shadow-md">
-                    <Image
-                        className="h-3 w-3"
-                        src={assets.heart_icon}
-                        alt="heart_icon"
-                    />
-                </button>
-            </div>
+          <Heart size={14} aria-hidden="true" />
+        </button>
+      </div>
 
-            <p className="md:text-base font-medium pt-2 w-full truncate">{product.name}</p>
-            <p className="w-full text-xs text-gray-500/70 max-sm:hidden truncate">{product.description}</p>
-            <div className="flex items-center gap-2">
-                <p className="text-xs">{4.5}</p>
-                <div className="flex items-center gap-0.5">
-                    {Array.from({ length: 5 }).map((_, index) => (
-                        <Image
-                            key={index}
-                            className="h-3 w-3"
-                            src={
-                                index < Math.floor(4)
-                                    ? assets.star_icon
-                                    : assets.star_dull_icon
-                            }
-                            alt="star_icon"
-                        />
-                    ))}
-                </div>
-            </div>
-
-            <div className="flex items-end justify-between w-full mt-1">
-                <p className="text-base font-medium">{currency}{product.offerPrice}</p>
-                <button className=" max-sm:hidden px-4 py-1.5 text-gray-500 border border-gray-500/20 rounded-full text-xs hover:bg-slate-50 transition">
-                   Buy now
-                </button>
-            </div>
+      {/* Info */}
+      <div className="mt-3 space-y-1">
+        <p className="text-sm font-medium text-neutral-900 truncate leading-snug group-hover:text-orange-700 transition-colors">
+          {product.name}
+        </p>
+        {product.category && (
+          <p className="text-[11px] uppercase tracking-[0.18em] text-neutral-400 truncate">
+            {product.category}
+          </p>
+        )}
+        <div className="flex items-baseline gap-2 pt-0.5">
+          <span className="text-sm font-medium text-neutral-900">
+            {currency}{product.offerPrice ?? product.price}
+          </span>
+          {hasDiscount && (
+            <span className="text-xs text-neutral-400 line-through">
+              {currency}{product.price}
+            </span>
+          )}
         </div>
-    )
-}
+      </div>
+    </Link>
+  );
+};
 
-export default ProductCard
+export default ProductCard;

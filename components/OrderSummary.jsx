@@ -1,123 +1,157 @@
+"use client";
 import { addressDummyData } from "@/assets/assets";
 import { useAppContext } from "@/context/AppContext";
 import React, { useEffect, useState } from "react";
+import { ChevronDown, MapPin, Tag } from "lucide-react";
 
 const OrderSummary = () => {
-
-  const { currency, router, getCartCount, getCartAmount } = useAppContext()
+  const { currency, router, getCartCount, getCartAmount } = useAppContext();
   const [selectedAddress, setSelectedAddress] = useState(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-
   const [userAddresses, setUserAddresses] = useState([]);
+  const [promoCode, setPromoCode] = useState("");
 
-  const fetchUserAddresses = async () => {
+  useEffect(() => {
     setUserAddresses(addressDummyData);
-  }
+  }, []);
 
   const handleAddressSelect = (address) => {
     setSelectedAddress(address);
     setIsDropdownOpen(false);
   };
 
-  const createOrder = async () => {
+  const createOrder = async () => {};
 
-  }
-
-  useEffect(() => {
-    fetchUserAddresses();
-  }, [])
+  const subtotal = getCartAmount();
+  const tax = Math.floor(subtotal * 0.02);
+  const total = subtotal + tax;
 
   return (
-    <div className="w-full md:w-96 bg-gray-500/5 p-5">
-      <h2 className="text-xl md:text-2xl font-medium text-gray-700">
-        Order Summary
-      </h2>
-      <hr className="border-gray-500/30 my-5" />
-      <div className="space-y-6">
+    <div className="bg-white border border-neutral-200 overflow-hidden">
+      {/* Header */}
+      <div className="px-6 py-5 border-b border-neutral-100">
+        <h2 className="font-serif text-2xl tracking-tight text-neutral-900">
+          Order <em className="italic font-normal text-orange-700">Summary</em>
+        </h2>
+      </div>
+
+      <div className="px-6 py-6 space-y-6">
+        {/* Address */}
         <div>
-          <label className="text-base font-medium uppercase text-gray-600 block mb-2">
-            Select Address
+          <label className="text-[11px] uppercase tracking-[0.2em] text-neutral-500 block mb-2">
+            Delivery Address
           </label>
-          <div className="relative inline-block w-full text-sm border">
+          <div className="relative">
             <button
-              className="peer w-full text-left px-4 pr-2 py-2 bg-white text-gray-700 focus:outline-none"
-              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+              type="button"
+              onClick={() => setIsDropdownOpen((o) => !o)}
+              className="w-full flex items-center justify-between text-left px-4 py-3 bg-white border border-neutral-300 text-sm text-neutral-700 hover:border-neutral-600 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900"
             >
-              <span>
-                {selectedAddress
-                  ? `${selectedAddress.fullName}, ${selectedAddress.area}, ${selectedAddress.city}, ${selectedAddress.state}`
-                  : "Select Address"}
+              <span className="flex items-center gap-2 min-w-0">
+                <MapPin size={13} aria-hidden="true" className="text-neutral-400 shrink-0" />
+                <span className="truncate">
+                  {selectedAddress
+                    ? `${selectedAddress.fullName}, ${selectedAddress.area}, ${selectedAddress.city}`
+                    : "Select address"}
+                </span>
               </span>
-              <svg className={`w-5 h-5 inline float-right transition-transform duration-200 ${isDropdownOpen ? "rotate-0" : "-rotate-90"}`}
-                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="#6B7280"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-              </svg>
+              <ChevronDown
+                size={14}
+                aria-hidden="true"
+                className={`shrink-0 ml-2 text-neutral-500 transition-transform duration-200 ${
+                  isDropdownOpen ? "rotate-180" : ""
+                }`}
+              />
             </button>
 
             {isDropdownOpen && (
-              <ul className="absolute w-full bg-white border shadow-md mt-1 z-10 py-1.5">
-                {userAddresses.map((address, index) => (
-                  <li
-                    key={index}
-                    className="px-4 py-2 hover:bg-gray-500/10 cursor-pointer"
-                    onClick={() => handleAddressSelect(address)}
-                  >
-                    {address.fullName}, {address.area}, {address.city}, {address.state}
+              <ul className="absolute z-20 w-full bg-white border border-neutral-300 border-t-0 shadow-lg">
+                {userAddresses.map((address, i) => (
+                  <li key={i}>
+                    <button
+                      type="button"
+                      onClick={() => handleAddressSelect(address)}
+                      className="w-full text-left px-4 py-3 text-sm text-neutral-700 hover:bg-neutral-50 transition-colors"
+                    >
+                      {address.fullName}, {address.area}, {address.city}, {address.state}
+                    </button>
                   </li>
                 ))}
-                <li
-                  onClick={() => router.push("/add-address")}
-                  className="px-4 py-2 hover:bg-gray-500/10 cursor-pointer text-center"
-                >
-                  + Add New Address
+                <li>
+                  <button
+                    type="button"
+                    onClick={() => { setIsDropdownOpen(false); router.push("/add-address"); }}
+                    className="w-full text-center px-4 py-3 text-sm text-orange-700 hover:bg-orange-50 transition-colors border-t border-neutral-100"
+                  >
+                    + Add new address
+                  </button>
                 </li>
               </ul>
             )}
           </div>
         </div>
 
+        {/* Promo code */}
         <div>
-          <label className="text-base font-medium uppercase text-gray-600 block mb-2">
+          <label className="text-[11px] uppercase tracking-[0.2em] text-neutral-500 block mb-2">
             Promo Code
           </label>
-          <div className="flex flex-col items-start gap-3">
-            <input
-              type="text"
-              placeholder="Enter promo code"
-              className="flex-grow w-full outline-none p-2.5 text-gray-600 border"
-            />
-            <button className="bg-orange-600 text-white px-9 py-2 hover:bg-orange-700">
+          <div className="flex gap-2">
+            <div className="relative flex-1">
+              <Tag size={13} aria-hidden="true" className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" />
+              <input
+                type="text"
+                value={promoCode}
+                onChange={(e) => setPromoCode(e.target.value)}
+                placeholder="Enter code"
+                className="w-full pl-8 pr-3 py-3 text-sm border border-neutral-300 text-neutral-700 placeholder-neutral-400 focus:outline-none focus:border-neutral-900 transition-colors"
+              />
+            </div>
+            <button
+              type="button"
+              className="px-5 py-3 bg-neutral-950 text-white text-xs uppercase tracking-[0.18em] hover:bg-orange-700 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 focus-visible:ring-offset-2"
+            >
               Apply
             </button>
           </div>
         </div>
 
-        <hr className="border-gray-500/30 my-5" />
+        <hr className="border-neutral-100" />
 
-        <div className="space-y-4">
-          <div className="flex justify-between text-base font-medium">
-            <p className="uppercase text-gray-600">Items {getCartCount()}</p>
-            <p className="text-gray-800">{currency}{getCartAmount()}</p>
+        {/* Totals */}
+        <div className="space-y-3 text-sm">
+          <div className="flex justify-between text-neutral-600">
+            <span>Subtotal ({getCartCount()} {getCartCount() === 1 ? "item" : "items"})</span>
+            <span className="font-medium text-neutral-900">{currency}{subtotal}</span>
           </div>
-          <div className="flex justify-between">
-            <p className="text-gray-600">Shipping Fee</p>
-            <p className="font-medium text-gray-800">Free</p>
+          <div className="flex justify-between text-neutral-600">
+            <span>Shipping</span>
+            <span className="text-emerald-700 font-medium">Free</span>
           </div>
-          <div className="flex justify-between">
-            <p className="text-gray-600">Tax (2%)</p>
-            <p className="font-medium text-gray-800">{currency}{Math.floor(getCartAmount() * 0.02)}</p>
+          <div className="flex justify-between text-neutral-600">
+            <span>Tax (2%)</span>
+            <span className="font-medium text-neutral-900">{currency}{tax}</span>
           </div>
-          <div className="flex justify-between text-lg md:text-xl font-medium border-t pt-3">
-            <p>Total</p>
-            <p>{currency}{getCartAmount() + Math.floor(getCartAmount() * 0.02)}</p>
+          <div className="flex justify-between text-base font-semibold text-neutral-900 pt-3 border-t border-neutral-200">
+            <span>Total</span>
+            <span>{currency}{total}</span>
           </div>
         </div>
       </div>
 
-      <button onClick={createOrder} className="w-full bg-orange-600 text-white py-3 mt-5 hover:bg-orange-700">
-        Place Order
-      </button>
+      {/* CTA */}
+      <div className="px-6 pb-6">
+        <button
+          type="button"
+          onClick={createOrder}
+          className="w-full py-4 bg-neutral-950 text-white text-xs uppercase tracking-[0.2em] font-medium hover:bg-orange-700 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 focus-visible:ring-offset-2"
+        >
+          Place Order
+        </button>
+        <p className="mt-3 text-center text-[11px] text-neutral-400">
+          Secure checkout · Free returns · Made in Lagos
+        </p>
+      </div>
     </div>
   );
 };

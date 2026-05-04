@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Users/HP USER/.claude/projects/c--Users-HP-USER-Desktop-WebApp-Unice-Stitches/**)",
+      "Bash(python3 -c ' *)"
+    ]
+  }
+}

@@ -12,7 +12,7 @@ const AddProduct = () => {
   const [files, setFiles] = useState([]);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
-  const [category, setCategory] = useState('Earphone');
+  const [category, setCategory] = useState('Men');
   const [price, setPrice] = useState('');
   const [offerPrice, setOfferPrice] = useState('');
 
@@ -93,7 +93,7 @@ const AddProduct = () => {
             id="product-name"
             type="text"
             placeholder="Type here"
-            className="outline-none md:py-2.5 py-2 px-3 rounded border border-gray-500/40"
+            className="outline-none md:py-2.5 py-2 px-3 rounded border border-neutral-300"
             onChange={(e) => setName(e.target.value)}
             value={name}
             required
@@ -109,7 +109,7 @@ const AddProduct = () => {
           <textarea
             id="product-description"
             rows={4}
-            className="outline-none md:py-2.5 py-2 px-3 rounded border border-gray-500/40 resize-none"
+            className="outline-none md:py-2.5 py-2 px-3 rounded border border-neutral-300 resize-none"
             placeholder="Type here"
             onChange={(e) => setDescription(e.target.value)}
             value={description}
@@ -123,7 +123,7 @@ const AddProduct = () => {
             </label>
             <select
               id="category"
-              className="outline-none md:py-2.5 py-2 px-3 rounded border border-gray-500/40"
+              className="outline-none md:py-2.5 py-2 px-3 rounded border border-neutral-300"
               onChange={(e) => setCategory(e.target.value)}
               value={category}
             >
@@ -139,7 +139,7 @@ const AddProduct = () => {
               id="product-price"
               type="number"
               placeholder="0"
-              className="outline-none md:py-2.5 py-2 px-3 rounded border border-gray-500/40"
+              className="outline-none md:py-2.5 py-2 px-3 rounded border border-neutral-300"
               onChange={(e) => setPrice(e.target.value)}
               value={price}
               required
@@ -153,7 +153,7 @@ const AddProduct = () => {
               id="offer-price"
               type="number"
               placeholder="0"
-              className="outline-none md:py-2.5 py-2 px-3 rounded border border-gray-500/40"
+              className="outline-none md:py-2.5 py-2 px-3 rounded border border-neutral-300"
               onChange={(e) => setOfferPrice(e.target.value)}
               value={offerPrice}
               required

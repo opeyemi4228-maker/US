@@ -18,7 +18,7 @@ export default function RootLayout({ children }) {
       <html lang="en">
         <body
           suppressHydrationWarning
-          className={`${montserrat.className} antialiased text-gray-800 bg-[#f5f5f5] selection:bg-yellow-300 selection:text-white`}
+          className={`${montserrat.className} antialiased text-neutral-800 bg-white selection:bg-orange-200 selection:text-neutral-900`}
         >
           <AppContextProvider>
             <ClientShell>
