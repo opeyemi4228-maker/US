@@ -1,8 +1,6 @@
 "use client";
 import React, { useState, useMemo } from "react";
 import Link from "next/link";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import PageHero from "@/components/PageHero";
 import ProductCard from "@/components/ProductCard";
 import { useAppContext } from "@/context/AppContext";
@@ -55,8 +53,6 @@ const ShopCategoryPage = ({
 
   return (
     <>
-      <Navbar />
-
       <PageHero
         eyebrow={eyebrow}
         title={title}
@@ -165,8 +161,6 @@ const ShopCategoryPage = ({
           </ul>
         )}
       </main>
-
-      <Footer />
     </>
   );
 };

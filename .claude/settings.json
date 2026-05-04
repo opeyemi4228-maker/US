@@ -2,7 +2,14 @@
   "permissions": {
     "allow": [
       "Read(//c/Users/HP USER/.claude/projects/c--Users-HP-USER-Desktop-WebApp-Unice-Stitches/**)",
-      "Bash(python3 -c ' *)"
+      "Bash(python3 -c ' *)",
+      "Bash(git -C \"C:\\\\Users\\\\HP USER\\\\Desktop\\\\WebApp\\\\Unice_Stitches\" diff --stat)",
+      "Bash(git -C \"C:\\\\Users\\\\HP USER\\\\Desktop\\\\WebApp\\\\Unice_Stitches\" status --short)",
+      "Bash(git -C \"C:\\\\Users\\\\HP USER\\\\Desktop\\\\WebApp\\\\Unice_Stitches\" status)",
+      "Bash(git -C \"C:\\\\Users\\\\HP USER\\\\Desktop\\\\WebApp\\\\Unice_Stitches\" diff --stat HEAD components/ProductCard.jsx app/my-orders/page.jsx app/layout.js components/Loading.jsx app/cart/page.jsx components/OrderSummary.jsx)",
+      "Bash(git -C \"C:\\\\Users\\\\HP USER\\\\Desktop\\\\WebApp\\\\Unice_Stitches\" log --oneline -5)",
+      "Bash(git -C \"C:\\\\Users\\\\HP USER\\\\Desktop\\\\WebApp\\\\Unice_Stitches\" show --stat HEAD)",
+      "Bash(git -C \"C:\\\\Users\\\\HP USER\\\\Desktop\\\\WebApp\\\\Unice_Stitches\" diff components/ShopCategoryPage.jsx)"
     ]
   }
 }

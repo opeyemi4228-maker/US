@@ -82,7 +82,7 @@ const Personalization = () => {
             <div className="md:w-1/2 flex flex-col gap-6">
               <div>
                 <h3 className="text-lg font-semibold mb-2">How Personalization Works</h3>
-                <ul className="list-disc pl-5 text-gray-700 text-sm">
+                <ul className="list-disc pl-5 text-neutral-700 text-sm">
                   <li>Choose your garment type and preferred color.</li>
                   <li>Provide your measurements for a perfect fit.</li>
                   <li>Add any special requests or notes (e.g. embroidery, sleeve length, etc).</li>
@@ -91,20 +91,20 @@ const Personalization = () => {
               </div>
               <div>
                 <h3 className="text-lg font-semibold mb-2">Need Help?</h3>
-                <p className="text-gray-700">
+                <p className="text-neutral-700">
                   Email: <a href="mailto:support@unicestitches.com" className="underline">support@unicestitches.com</a>
                 </p>
-                <p className="text-gray-700">
+                <p className="text-neutral-700">
                   Phone: <a href="tel:+1234567890" className="underline">+1 (234) 567-890</a>
                 </p>
-                <p className="text-gray-700">
+                <p className="text-neutral-700">
                   Our team is happy to assist you with your custom order.
                 </p>
               </div>
             </div>
             {/* Personalization Form */}
             <form
-              className="md:w-1/2 flex flex-col gap-4 bg-gray-50 p-6 rounded-lg shadow"
+              className="md:w-1/2 flex flex-col gap-4 bg-neutral-50 p-6 border border-neutral-200"
               onSubmit={handleSubmit}
             >
               <h3 className="text-lg font-semibold mb-2">Personalize Your Order</h3>
